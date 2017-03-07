@@ -7,6 +7,6 @@ setup(name='pigeon',
       author='Patrick White',
       author_email='pfwhite9@gmail.com',
       license='MIT',
-      packages=['pidgeon'],
+      packages=['pigeon'],
       install_requires=['cappy', 'docopt', 'pyyaml'],
       zip_safe=False)
