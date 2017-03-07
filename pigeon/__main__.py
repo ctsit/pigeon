@@ -1,4 +1,4 @@
-"""
+docstr = """
 Pigeon
 
 Usage: pigeon.py [-h] (<file> <config>) [-o <output.json>]
@@ -24,11 +24,11 @@ _cv = 'cappy_version'
 _tk = 'token'
 _ru = 'redcap_url'
 
-def main(args):
+def main(args=docopt(docstr)):
     with open(args[_config], 'r') as config_file:
         global config
         config = yaml.load(config_file.read())
-    with open(args[record_file], 'r') as infile:
+    with open(args[_file], 'r') as infile:
         records_json = infile.read()
     api = cappy.API(config[_tk], config[_ru], config[_cv])
 
@@ -53,6 +53,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-    args = docopt(__doc__)
+    args = docopt(docstr)
     main(args)
     exit()

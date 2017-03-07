@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(name='pigeon',
       version='0.0.1',
@@ -7,6 +7,11 @@ setup(name='pigeon',
       author='Patrick White',
       author_email='pfwhite9@gmail.com',
       license='MIT',
-      packages=['pigeon'],
+      packages=find_packages(),
+      entry_points={
+          'console_scripts': [
+              'pigeon = pigeon.__main__:main',
+          ],
+      },
       install_requires=['cappy', 'docopt', 'pyyaml'],
       zip_safe=False)
