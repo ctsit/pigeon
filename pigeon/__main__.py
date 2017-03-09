@@ -10,6 +10,7 @@ Options:
 """
 import json
 import datetime
+from copy import copy
 
 from docopt import docopt
 import yaml
@@ -37,23 +38,24 @@ def batchify(records, batch_size=0):
             batched[curr_batch].append(record)
     return batched
 
-def upload(records, report):
-    response = api.import_records(data=records_json)
+def upload(api, records, report):
+    response = api.import_records(data=json.dumps(records))
     data = json.loads(response.content)
-    if data.get('error'):
+    if type(data) == type({}) and data.get('error'):
         errors = data.get('error').split('\n')
         errors = [error.split(',') for error in errors]
         err_dicts = [clean_err(error) for error in errors]
         report['errors'] = err_dicts
         for error in err_dicts:
+            print(error)
             for index, record in enumerate(records):
-                subject_has_err = error.get('subject') == record.get('dm_subjid')
+                subject_has_err = str(error.get('subject')) == str(record.get('dm_subjid'))
                 event_has_err = error.get('event') == record.get('redcap_event_name')
                 if subject_has_err and event_has_err:
                     del records[index][error.get('field')]
         response = api.import_records(data=json.dumps(records))
 
-    report['subjects_uploaded'] = [int(item) for item in json.loads(response.content)]
+    report['subjects_uploaded'] = [str(item) for item in json.loads(response.content)]
     report['subjects_uploaded'].sort()
     report['num_subjects_uploaded'] = len(report['subjects_uploaded'])
     report['end_time'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -94,7 +96,7 @@ def main(args=docopt(docstr)):
 
     zipped = zip(batched, batch_reports)
     for pair in zipped:
-        upload(pair[0], pair[1])
+        upload(api, pair[0], pair[1])
 
     print(json.dumps(batch_reports, indent=4))
 
