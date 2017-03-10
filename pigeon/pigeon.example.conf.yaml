@@ -1,3 +1,4 @@
 cappy_version: pidgeon.json
 token: BF737141CE84F98B749A204F5A0CEE41
 redcap_url: http://hcvtargetrc.dev/redcap/api/
+batch_size: 0 # if redcap has problems increase this number
