@@ -47,7 +47,6 @@ def upload(api, records, report):
         err_dicts = [clean_err(error) for error in errors]
         report['errors'] = err_dicts
         for error in err_dicts:
-            print(error)
             for index, record in enumerate(records):
                 subject_has_err = str(error.get('subject')) == str(record.get('dm_subjid'))
                 event_has_err = error.get('event') == record.get('redcap_event_name')
