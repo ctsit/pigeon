@@ -40,7 +40,7 @@ def batchify(records, batch_size=0):
 
 def upload(api, records, report):
     response = api.import_records(data=json.dumps(records))
-    data = json.loads(response.content)
+    data = json.loads(str(response.content, 'utf-8'))
     if type(data) == type({}) and data.get('error'):
         errors = data.get('error').split('\n')
         errors = [error.split(',') for error in errors]
@@ -54,7 +54,7 @@ def upload(api, records, report):
                     del records[index][error.get('field')]
         response = api.import_records(data=json.dumps(records))
 
-    report['subjects_uploaded'] = [str(item) for item in json.loads(response.content)]
+    report['subjects_uploaded'] = [str(item) for item in json.loads(str(response.content, 'utf-8'))]
     report['subjects_uploaded'].sort()
     report['num_subjects_uploaded'] = len(report['subjects_uploaded'])
     report['end_time'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -84,7 +84,7 @@ def main(args=docopt(docstr)):
     response = api.import_records(data=records_json)
 
     if response.status_code != 403:
-        data = json.loads(response.content)
+        data = json.loads(str(response.content, 'utf-8'))
     else:
         print('This is redcap\'s way of saying that there are too many records')
         print(response)
