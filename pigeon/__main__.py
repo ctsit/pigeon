@@ -62,7 +62,7 @@ def upload(api, records, report):
         for key in subj_ev:
             report['datapoints_updated'] += 1
 
-def main(args=docopt(docstr)):
+def main(args):
     with open(args[_config], 'r') as config_file:
         global config
         config = yaml.load(config_file.read())
@@ -108,7 +108,10 @@ def clean_err(err):
         'message': err[3].replace('"','')
     }
 
-if __name__ == '__main__':
+def cli_run():
     args = docopt(docstr)
     main(args)
+
+if __name__ == '__main__':
+    cli_run()
     exit()
