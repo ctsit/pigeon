@@ -38,29 +38,45 @@ def batchify(records, batch_size=0):
             batched[curr_batch].append(record)
     return batched
 
+def parse_errors(errors):
+    # if is that one error we always see
+    # 'There were errors with your request. If you are sending data, then it might be due to the data being misformatted'
+    ## kick them out to the singles
+    # else
+    ## parse the errors and get the error dicts
+    pass
+
+def upload_singles(api, records, report):
+    for record in records:
+        res = api.import_records(data=json.dumps([record]))
+        data = json.loads(str(res.content, 'utf-8'))
+        # add information to the report
+
 def upload(api, records, report):
     response = api.import_records(data=json.dumps(records))
     data = json.loads(str(response.content, 'utf-8'))
     if type(data) == type({}) and data.get('error'):
         errors = data.get('error').split('\n')
-        errors = [error.split(',') for error in errors]
-        err_dicts = [clean_err(error) for error in errors]
-        report['errors'] = err_dicts
-        for error in err_dicts:
-            for index, record in enumerate(records):
-                subject_has_err = str(error.get('subject')) == str(record.get('dm_subjid'))
-                event_has_err = error.get('event') == record.get('redcap_event_name')
-                if subject_has_err and event_has_err:
-                    del records[index][error.get('field')]
-        response = api.import_records(data=json.dumps(records))
+        err_dicts = parse_errors(errors)
+        if not len(err_dicts):
+            upload_singles(api, records, report)
+        else:
+            report['errors'] = err_dicts
+            for error in err_dicts:
+                for index, record in enumerate(records):
+                    subject_has_err = str(error.get('subject')) == str(record.get('dm_subjid'))
+                    event_has_err = error.get('event') == record.get('redcap_event_name')
+                    if subject_has_err and event_has_err:
+                        del records[index][error.get('field')]
+            response = api.import_records(data=json.dumps(records))
 
-    report['subjects_uploaded'] = [str(item) for item in json.loads(str(response.content, 'utf-8'))]
-    report['subjects_uploaded'].sort()
-    report['num_subjects_uploaded'] = len(report['subjects_uploaded'])
-    report['end_time'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    for subj_ev in records:
-        for key in subj_ev:
-            report['datapoints_updated'] += 1
+        report['subjects_uploaded'] = [str(item) for item in json.loads(str(response.content, 'utf-8'))]
+        report['subjects_uploaded'].sort()
+        report['num_subjects_uploaded'] = len(report['subjects_uploaded'])
+        report['end_time'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        for subj_ev in records:
+            for key in subj_ev:
+                report['datapoints_updated'] += 1
 
 def main(args):
     with open(args[_config], 'r') as config_file:
