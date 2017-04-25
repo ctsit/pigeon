@@ -16,9 +16,9 @@ from docopt import docopt
 import yaml
 import cappy
 
-from reporter import Reporter
-from upload_strategy import UploadStrategy
-from exceptions import *
+from .reporter import Reporter
+from .upload_strategy import UploadStrategy
+from .exceptions import *
 
 _file = '<file>'
 _config = '<config>'
@@ -40,36 +40,42 @@ def main(args):
     api = cappy.API(config[_tk], config[_ru], config[_cv])
 
     report_template = {
+        'attempts': 0,
         'num_records_attempted': 0,
         'num_subjects_uploaded': 0,
         'num_records_uploaded': 0,
+        'num_of_errors': 0,
         'subjects_uploaded': [],
         'errors': [],
         'datapoints_updated': 0,
         'start_time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
         'batch_end_time': [],
-        'num_of_batches': 0,
+        'num_of_batches': 1,
+        'strategy_used': "",
     }
 
     records = json.loads(records_json)
-    report.num_records_attempted = len(records)
 
-    full_upload = UploadStrategy('full', api)
 
     try:
-        report = Reporter(report_template)
-        full_upload(records, report)
+        report = Reporter('pigeon_v1', report_template)
+        full_upload = UploadStrategy('full', api)
+        uploaded, report = full_upload(records, report)
     except TooManyRecords:
         try:
-            report = Reporter(report_template)
+            report = Reporter('pigeon_v1', report_template)
             batch_upload = UploadStrategy('batch', api)
-            batch_upload(records, report, (batch_size=config[_bs] or 500))
-        except:
-        # do singles if irrecoverable
-            pass
+            uploaded, report = batch_upload(records, report, batch_size=(config[_bs] or 500))
+        except IrrecoverableError:
+            single_upload = UploadStrategy('single', api)
+            uploaded, report = single_upload(records, report)
+    except IrrecoverableError:
+        report = Reporter('pigeon_v1', report_template)
+        single_upload = UploadStrategy('single', api)
+        uploaded, report = single_upload(records, report)
 
 
-    print(json.dumps(batch_reports, indent=4))
+    print(report.serialize())
 
 def cli_run():
     args = docopt(docstr)

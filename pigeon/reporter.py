@@ -9,14 +9,14 @@ class Reporter(object):
         for key, value in output_dict.items():
             self.add_key_value(key, value)
 
-    def serialize(self, sortkeys=True, indent=4):
+    def serialize(self, sort_keys=True, indent=4):
         acc = {
             'source': self.__source,
             'output': {}
         }
         for key in self.__template.keys():
             acc['output'][key] = getattr(self, key)
-        return json.dumps(copy(acc), sortkeys=sortkeys, indent=indent)
+        return json.dumps(copy(acc), sort_keys=sort_keys, indent=indent)
 
     def add_key_value(self, key, value):
         key_copy = copy(key)

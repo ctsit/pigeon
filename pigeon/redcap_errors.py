@@ -1,4 +1,4 @@
-from exceptions import *
+from .exceptions import *
 
 def clean_errors(error):
     err = [part.replace('\"', '') for part in error.split(',')]
@@ -12,9 +12,9 @@ def clean_errors(error):
 
 def parse_errors(error_data):
     try:
-        return [clean_errors(error) for error in error_date.split("\n") if error]
+        return [clean_errors(error) for error in error_data.split("\n") if error]
     except Exception as err:
-        raise UnrecoverableError("""
+        raise IrrecoverableError("""
         The batch you sent returned irrecoverable errors from Redcap
         The error we got from redcap was:
         {}
