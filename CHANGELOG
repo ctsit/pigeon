@@ -1,0 +1,20 @@
+## [0.1.0] - 2017-05-17
+### Summary
+ * This is the first release.
+
+### Added
+ * Add an AUTHORS and TODO file, and update the license to apache 2.0 (Matthew McConnell)
+ * finish refactor (Patrick White)
+ * introduces modules for reporting and uploading (Patrick White)
+ * fixing errors with hcv projects (Patrick White)
+ * fixing docopt usage to allow for unit testing (Patrick White)
+ * fix string casting (Patrick White)
+ * updated example config with batching parameter (Patrick White)
+ * removing debug statement (Patrick White)
+ * Batching is now working (Patrick White)
+ * redcap does bad things (Patrick White)
+ * pigeon is smarter when it runs into errors (Patrick White)
+ * changes to make pigeon a commandline tool (Patrick White)
+ * fixed some packaging issues (Patrick White)
+ * files added (Patrick White)
+ * Initial commit (PFWhite)
