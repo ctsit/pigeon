@@ -19,6 +19,7 @@ import cappy
 from .reporter import Reporter
 from .upload_strategy import UploadStrategy
 from .exceptions import *
+from .risk_manager import RiskManager
 
 _file = '<file>'
 _config = '<config>'
@@ -28,6 +29,7 @@ _output = '--output'
 _cv = 'cappy_version'
 _tk = 'token'
 _ru = 'redcap_url'
+_ro = 'requests_options'
 _bs = 'batch_size'
 
 def main(args):
@@ -37,17 +39,18 @@ def main(args):
     with open(args[_file], 'r') as infile:
         records_json = infile.read()
 
-    api = cappy.API(config[_tk], config[_ru], config[_cv])
+    api = cappy.API(config[_tk], config[_ru], config[_cv], requests_options=config.get(_ro))
 
     report_template = {
-        'attempts': 0,
+        'file_loaded': args[_file],
         'num_records_attempted': 0,
         'num_subjects_uploaded': 0,
         'num_records_uploaded': 0,
         'num_of_errors': 0,
         'subjects_uploaded': [],
         'errors': [],
-        'datapoints_updated': 0,
+        'error_correction_attempts': 0,
+        'fields_updated': 0,
         'start_time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
         'batch_end_time': [],
         'num_of_batches': 1,
@@ -55,25 +58,19 @@ def main(args):
     }
 
     records = json.loads(records_json)
+    report = Reporter('pigeon_v1', report_template)
+    full_upload = UploadStrategy('full', api)
+    batch_upload = UploadStrategy('batch', api)
+    single_upload = UploadStrategy('single', api)
 
+    upload = RiskManager(lambda : full_upload(records, report))
+    upload.add_backup(lambda ex: batch_upload(records, report.reset().add_key_value('full_ex', ex)))
+    upload.add_backup(lambda ex: single_upload(records, report.reset().add_key_value('batch_ex', ex)))
 
-    try:
-        report = Reporter('pigeon_v1', report_template)
-        full_upload = UploadStrategy('full', api)
-        uploaded, report = full_upload(records, report)
-    except TooManyRecords:
-        try:
-            report = Reporter('pigeon_v1', report_template)
-            batch_upload = UploadStrategy('batch', api)
-            uploaded, report = batch_upload(records, report, batch_size=(config[_bs] or 500))
-        except IrrecoverableError:
-            single_upload = UploadStrategy('single', api)
-            uploaded, report = single_upload(records, report)
-    except IrrecoverableError:
-        report = Reporter('pigeon_v1', report_template)
-        single_upload = UploadStrategy('single', api)
-        uploaded, report = single_upload(records, report)
+    result, ran_out_of_plans = upload()
 
+    if ran_out_of_plans:
+        report.add_key_value('exceptions', [ex for ex in upload.exceptions_encountered])
 
     print(report.serialize())
 
