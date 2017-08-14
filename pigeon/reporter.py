@@ -23,7 +23,13 @@ class Reporter(object):
         value_copy = copy(value)
         self.__template[key_copy] = value_copy
         setattr(self, key_copy, value_copy)
+        return self
 
     def get_template(self):
         return copy(self.__template)
+
+    def reset(self):
+        for key in self.__template.keys():
+            setattr(self, key, self.__template.get(key))
+        return self
 

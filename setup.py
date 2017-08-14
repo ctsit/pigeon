@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='pigeon',
-      version='0.1.0',
+      version='1.0.0',
       description='Pigeon brings your records to redcap.',
       url='http://github.com/pfwhite/pigeon',
       author='Patrick White',

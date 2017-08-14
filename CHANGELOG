@@ -1,3 +1,13 @@
+## [1.0.0] - 2017-07-17
+### Initial release
+ * add better error handling and reporting (Patrick White)
+ * introduces modules for reporting and uploading (Patrick White)
+ * fixing docopt usage to allow for unit testing (Patrick White)
+ * fix string casting (Patrick White)
+ * updated example config with batching parameter (Patrick White)
+ * Batching is now working (Patrick White)
+ * changes to make pigeon a commandline tool (Patrick White)
+
 ## [0.1.0] - 2017-05-17
 ### Summary
  * This is the first release.
