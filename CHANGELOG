@@ -1,3 +1,9 @@
+## [1.1.0] - 2017-08-14
+Quick update to get CTSI Repo up to date
+### Added
+ * updated CHANGELOG and setup for release 0.1.0 (Matthew McConnell)
+ * Add an AUTHORS and TODO file, and update the license to apache 2.0 (Matthew McConnell)
+
 ## [1.0.0] - 2017-07-17
 ### Initial release
  * add better error handling and reporting (Patrick White)
