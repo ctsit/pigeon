@@ -17,39 +17,39 @@ class UploadStrategy(object):
         self.strategy = strategy
         self.api = api
 
-    def __call__(self, records, report, **upload_specific_kwargs):
+    def __call__(self, records, report, **upload_kwargs):
+        self.upload_kwargs = upload_kwargs
         uploads = {
             'full': self.__full_upload,
             'batch': self.__batch_upload,
             'single': self.__single_upload,
         }
         report.num_records_attempted = len(records)
-        return uploads[self.strategy](records, report, **upload_specific_kwargs)
+        if report.error_correction_attempts < 3:
+            return uploads[self.strategy](records, report, **upload_kwargs)
+        else:
+            raise Exception('Attempted to correct errors too many times')
 
     def __response_parse(self, res):
         status = res.status_code
         text = str(res.content, 'utf-8')
-        try:
-            data = json.loads(text)
-        except:
-            data = text
-        return status, data
+        return json.loads(text)
 
     def __handle_errors(self, records, data, report):
+        report.error_correction_attempts += 1
         errors = redcap_errors.parse_errors(data.get('error'))
         for error in errors:
             report.errors.append(copy(error))
-        report.num_of_errors = len(errors)
+        report.num_of_errors += len(errors)
         records = redcap_errors.remove_error_fields(records, errors)
-        return self.__full_upload(records, report)
+        return self(records, report, **self.upload_kwargs)
 
-    def __full_upload_report_fill(self, records, data, report):
-        report.subjects_uploaded = list(set(data + report.subjects_uploaded))
+    def __report_fill(self, records, data, report):
+        report.subjects_uploaded = sorted(list(set(data + report.subjects_uploaded)))
         report.batch_end_time.append(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
         report.num_records_uploaded += len(records)
         report.num_subjects_uploaded += len(report.subjects_uploaded)
-        report.datapoints_updated += sum([len(record.keys()) - 2 for record in records])
-        report.strategy_used = 'full'
+        report.fields_updated += sum([len(record.keys()) - 2 for record in records])
         return report
 
     def __full_upload(self, records, report):
@@ -57,17 +57,16 @@ class UploadStrategy(object):
         Takes records and a Reporter instance
         """
         upload_data = json.dumps(records)
-        report.attempts += 1
-        if report.attempts == 3:
-            raise IrrecoverableError('Pigeon was unable to recover from errors. Attempt a single_upload')
         res = self.api.import_records(data=upload_data)
-        status, data = self.__response_parse(res)
-        if status == 403:
-            raise TooManyRecords('You are trying to upload too many records.')
-        elif type(data) == type({}) and 'error' in data.keys():
+        if (res.status_code == 403):
+            raise TooManyRecords(res.content)
+        data = self.__response_parse(res)
+        if type(data) == type({}) and 'error' in data.keys():
             return self.__handle_errors(records, data, report)
         else:
-            return records, self.__full_upload_report_fill(records, data, report)
+            self.__report_fill(records, data, report)
+            report.strategy_used = 'full'
+            return records, report
 
     def __batch_upload(self, records, report, batch_size=500):
         batches = [[]]

@@ -1,6 +1,6 @@
 from .exceptions import *
 
-def clean_errors(error):
+def clean_error(error):
     err = [part.replace('\"', '') for part in error.split(',')]
     return {
         'subject': err[0].split()[0],
@@ -11,20 +11,12 @@ def clean_errors(error):
     }
 
 def parse_errors(error_data):
-    try:
-        return [clean_errors(error) for error in error_data.split("\n") if error]
-    except Exception as err:
-        raise IrrecoverableError("""
-        The batch you sent returned irrecoverable errors from Redcap
-        The error we got from redcap was:
-        {}
-
-        The exception we encountered while trying to handle the error parsing was:
-        {}
-
-        Once you have removed ALL Protected Health information,
-        please submit an issue at https://github.com/ctsit/pigeon
-        """.format(error_data, str(err)))
+    print(error_data)
+    if 'There were errors with your request.' in error_data:
+        raise IrrecoverableError(error_data)
+    if 'data being misformatted' in error_data:
+        raise IrrecoverableError(error_data)
+    return [clean_error(error) for error in error_data.split("\n") if error]
 
 def remove_error_fields(records, errors):
     for error in errors:
