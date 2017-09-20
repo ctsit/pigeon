@@ -1,7 +1,14 @@
 from setuptools import setup, find_packages
 
+#bring in __version__ from sourcecode
+#per https://stackoverflow.com/a/17626524
+#and https://stackoverflow.com/a/2073599
+
+with open('pigeon/version.py') as ver:
+    exec(ver.read())
+
 setup(name='pigeon',
-      version='1.0.0',
+      version=__version__,
       description='Pigeon brings your records to redcap.',
       url='http://github.com/pfwhite/pigeon',
       author='Patrick White',
@@ -10,7 +17,7 @@ setup(name='pigeon',
       packages=find_packages(),
       entry_points={
           'console_scripts': [
-              'pigeon = pigeon.__main__:cli_run',
+              'pigeon = pigeon.__main__:main',
           ],
       },
       install_requires=[
