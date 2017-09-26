@@ -17,7 +17,7 @@ setup(name='pigeon',
       packages=find_packages(),
       entry_points={
           'console_scripts': [
-              'pigeon = pigeon.__main__:main',
+              'pigeon = pigeon.__main__:cli_run',
           ],
       },
       install_requires=[
