@@ -5,6 +5,7 @@ Usage: pigeon.py [-h] (<file> <config>) [-o <output.json>]
 
 Options:
   -h --help                                     show this message and exit
+  -v --version                                  show version
   -o <output.json> --output=<output.json>       optional output file for results
 
 """
@@ -20,6 +21,7 @@ from .reporter import Reporter
 from .upload_strategy import UploadStrategy
 from .exceptions import *
 from .risk_manager import RiskManager
+from pigeon.version import __version__
 
 _file = '<file>'
 _config = '<config>'
@@ -75,7 +77,7 @@ def main(args):
     print(report.serialize())
 
 def cli_run():
-    args = docopt(docstr)
+    args = docopt(docstr, version='Pigeon %s' % __version__)
     main(args)
 
 if __name__ == '__main__':
