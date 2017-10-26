@@ -1,3 +1,15 @@
+## [1.2.0] - 2017-10-26
+### Summary
+ * This release sets specific versions for dependencies and updates on docopt
+	works
+### Added
+ * create a entry point function for docopts to work better (Matthew McConnell)
+ * add a specific reqs files for devs (Matthew McConnell)
+ * added version file and updated references to it (Matthew McConnell)
+
+### Changed
+ * made dependencies have specific version, and changed license (Matthew McConnell)
+
 ## [1.1.0] - 2017-08-14
 Quick update to get CTSI Repo up to date
 ### Added
