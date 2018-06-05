@@ -1,3 +1,4 @@
+import sys
 from .exceptions import *
 
 def clean_error(error):
@@ -11,7 +12,7 @@ def clean_error(error):
     }
 
 def parse_errors(error_data):
-    print(error_data)
+    print(error_data, file=sys.stderr)
     if 'There were errors with your request.' in error_data:
         raise IrrecoverableError(error_data)
     if 'data being misformatted' in error_data:
