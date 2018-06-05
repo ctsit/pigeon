@@ -15,23 +15,22 @@ Pigeon brings your records to redcap. Pigeon will print its log to stdout by def
 1. Run `python setup.py install`
 
 # Usage Examples
-  ## TODO
+    ## TODO: Write Here
 
 # Development setup
-  ## TODO
-
+    ## TODO: Write Here
 
 # Release History
-  ## TODO: Write Here
+    ## TODO: Write Here
 
 # License
-  ## TODO: Write Here
+    ## TODO: Write Here
 
 # Author(s)
-  ## TODO: Write Here
+    ## TODO: Write Here
 
 # Issues
-  ## TODO: Write Here
+    ## TODO: Write Here
 
 # Wiki  
     ## TODO: Write Here
