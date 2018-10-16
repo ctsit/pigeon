@@ -10,9 +10,11 @@ with open('pigeon/version.py') as ver:
 setup(name='pigeon',
       version=__version__,
       description='Pigeon brings your records to redcap.',
-      url='http://github.com/pfwhite/pigeon',
+      url='http://github.com/ctsit/pigeon',
       author='Patrick White',
       author_email='pfwhite9@gmail.com',
+      maintainer='CTS-IT at the University of Florida',
+      maintainer_email='ctsit@ctsi.ufl.edu',
       license='Apache 2.0',
       packages=find_packages(),
       entry_points={
